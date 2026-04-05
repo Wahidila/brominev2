@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BMC 2026 - Admin Panel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0f1a;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        /* Login */
+        .login-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .login-card {
+            background: #111827;
+            border: 1px solid #1e293b;
+            border-radius: 1rem;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-card h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-card p {
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .login-card input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #1e293b;
+            background: #0a0f1a;
+            color: #e2e8f0;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            outline: none;
+        }
+
+        .login-card input:focus {
+            border-color: #007237;
+        }
+
+        .login-error {
+            color: #f87171;
+            font-size: 0.8rem;
+            margin-bottom: 0.75rem;
+            display: none;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.65rem 1.25rem;
+            border-radius: 0.5rem;
+            font-size: 0.813rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn-primary {
+            background: #007237;
+            color: #fff;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: #fff;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #1e293b;
+            color: #e2e8f0;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.75rem;
+            font-size: 0.75rem;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        /* Layout */
+        .app {
+            display: none;
+        }
+
+        .topbar {
+            background: #111827;
+            border-bottom: 1px solid #1e293b;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .topbar h1 {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .topbar span {
+            color: #64748b;
+            font-size: 0.8rem;
+        }
+
+        .main {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: #111827;
+            border: 1px solid #1e293b;
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+        }
+
+        .stat-card .label {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-card .value {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .stat-card.green .value {
+            color: #007237;
+        }
+
+        .stat-card.yellow .value {
+            color: #d9bf16;
+        }
+
+        .stat-card.red .value {
+            color: #f87171;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            align-items: center;
+        }
+
+        .toolbar input {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.6rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #1e293b;
+            background: #111827;
+            color: #e2e8f0;
+            font-size: 0.813rem;
+            outline: none;
+        }
+
+        .toolbar input:focus {
+            border-color: #007237;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.25rem;
+            background: #111827;
+            border-radius: 0.5rem;
+            padding: 0.25rem;
+            border: 1px solid #1e293b;
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #64748b;
+            background: transparent;
+            border: none;
+        }
+
+        .tab.active {
+            background: #007237;
+            color: #fff;
+        }
+
+        /* Table */
+        .table-wrap {
+            overflow-x: auto;
+            background: #111827;
+            border: 1px solid #1e293b;
+            border-radius: 0.75rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.813rem;
+        }
+
+        th {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid #1e293b;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #1e293b/50;
+            vertical-align: top;
+        }
+
+        tr:hover td {
+            background: #0a0f1a;
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            font-size: 0.688rem;
+            font-weight: 600;
+        }
+
+        .badge-pending {
+            background: #d9bf1620;
+            color: #d9bf16;
+        }
+
+        .badge-approved {
+            background: #00723720;
+            color: #22c55e;
+        }
+
+        .badge-rejected {
+            background: #dc262620;
+            color: #f87171;
+        }
+
+        /* Actions */
+        .actions {
+            display: flex;
+            gap: 0.35rem;
+        }
+
+        .actions select {
+            padding: 0.3rem 0.5rem;
+            border-radius: 0.375rem;
+            border: 1px solid #1e293b;
+            background: #0a0f1a;
+            color: #e2e8f0;
+            font-size: 0.7rem;
+        }
+
+        .file-link {
+            color: #007237;
+            text-decoration: none;
+            font-size: 0.75rem;
+        }
+
+        .file-link:hover {
+            text-decoration: underline;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+
+        /* Detail Modal */
+        .modal-bg {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            padding: 1rem;
+        }
+
+        .modal {
+            background: #111827;
+            border: 1px solid #1e293b;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .modal .field {
+            margin-bottom: 0.75rem;
+        }
+
+        .modal .field label {
+            font-size: 0.7rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .modal .field p {
+            font-size: 0.875rem;
+            margin-top: 0.15rem;
+        }
+
+        .modal-close {
+            float: right;
+            background: none;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            font-size: 1.25rem;
+        }
+
+        @media (max-width: 768px) {
+            .main {
+                padding: 1rem;
+            }
+
+            .stats {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-wrap">
+        <div class="login-card">
+            <h1>🔐 Admin Panel</h1>
+            <p>BMC 2026 Registration Management</p>
+            <div id="loginError" class="login-error"></div>
+            <input type="text" id="username" placeholder="Username" autocomplete="username">
+            <input type="password" id="password" placeholder="Password" autocomplete="current-password">
+            <button class="btn btn-primary btn-full" onclick="doLogin()">Sign In</button>
+        </div>
+    </div>
+
+    <!-- App -->
+    <div id="app" class="app">
+        <div class="topbar">
+            <div>
+                <h1>📋 BMC 2026 — Registrations</h1>
+            </div>
+            <div style="display:flex;align-items:center;gap:1rem;">
+                <span id="adminName"></span>
+                <button class="btn btn-outline btn-sm" onclick="doLogout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="main">
+            <div class="stats" id="stats"></div>
+
+            <div class="toolbar">
+                <input type="text" id="searchInput" placeholder="Search by name, email, institution..."
+                    oninput="debounceLoad()">
+                <div class="tabs" id="statusTabs"></div>
+                <button class="btn btn-outline btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>WhatsApp</th>
+                            <th>Institution</th>
+                            <th>Type</th>
+                            <th>Nationality</th>
+                            <th>Presence</th>
+                            <th>Sub-Topic</th>
+                            <th>Files</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody"></tbody>
+                </table>
+                <div id="emptyState" class="empty" style="display:none;">No registrations found.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div class="modal-bg" id="detailModal" onclick="closeModal()">
+        <div class="modal" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h2>Registration Detail</h2>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        const API = (window.location.pathname.includes('/admin')
+            ? window.location.pathname.replace(/\/admin\/?.*$/, '')
+            : '') + '/api/admin.php';
+
+        const UPLOAD_BASE = (window.location.pathname.includes('/admin')
+            ? window.location.pathname.replace(/\/admin\/?.*$/, '')
+            : '') + '/';
+
+        let currentStatus = 'all';
+        let debounceTimer = null;
+
+        // ── Auth ──────────────────────────────────────────
+        async function doLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errEl = document.getElementById('loginError');
+            errEl.style.display = 'none';
+
+            try {
+                const res = await fetch(API + '?action=login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password }),
+                    credentials: 'include',
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showApp(data.username);
+                } else {
+                    errEl.textContent = data.error || 'Login failed';
+                    errEl.style.display = 'block';
+                }
+            } catch (e) {
+                errEl.textContent = 'Connection error. Is the backend running?';
+                errEl.style.display = 'block';
+            }
+        }
+
+        async function checkAuth() {
+            try {
+                const res = await fetch(API + '?action=check', { credentials: 'include' });
+                const data = await res.json();
+                if (data.authenticated) showApp(data.username);
+            } catch (e) { }
+        }
+
+        async function doLogout() {
+            await fetch(API + '?action=logout', { credentials: 'include' });
+            document.getElementById('app').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+        }
+
+        function showApp(username) {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+            document.getElementById('adminName').textContent = username;
+            loadRegistrations();
+        }
+
+        // ── Data ──────────────────────────────────────────
+        async function loadRegistrations() {
+            const search = document.getElementById('searchInput').value;
+            const params = new URLSearchParams({ action: 'registrations', status: currentStatus, search });
+
+            try {
+                const res = await fetch(API + '?' + params, { credentials: 'include' });
+                const data = await res.json();
+                renderStats(data.counts);
+                renderTabs(data.counts);
+                renderTable(data.registrations);
+            } catch (e) {
+                console.error('Load failed:', e);
+            }
+        }
+
+        function debounceLoad() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(loadRegistrations, 300);
+        }
+
+        function renderStats(counts) {
+            document.getElementById('stats').innerHTML = `
+        <div class="stat-card"><div class="label">Total</div><div class="value">${counts.total}</div></div>
+        <div class="stat-card yellow"><div class="label">Pending</div><div class="value">${counts.pending}</div></div>
+        <div class="stat-card green"><div class="label">Approved</div><div class="value">${counts.approved}</div></div>
+        <div class="stat-card red"><div class="label">Rejected</div><div class="value">${counts.rejected}</div></div>
+    `;
+        }
+
+        function renderTabs(counts) {
+            const tabs = ['all', 'pending', 'approved', 'rejected'];
+            document.getElementById('statusTabs').innerHTML = tabs.map(t =>
+                `<button class="tab ${currentStatus === t ? 'active' : ''}" onclick="setStatus('${t}')">${t.charAt(0).toUpperCase() + t.slice(1)} (${t === 'all' ? counts.total : counts[t]})</button>`
+            ).join('');
+        }
+
+        function setStatus(s) {
+            currentStatus = s;
+            loadRegistrations();
+        }
+
+        function renderTable(rows) {
+            const tbody = document.getElementById('tbody');
+            const empty = document.getElementById('emptyState');
+
+            if (!rows.length) {
+                tbody.innerHTML = '';
+                empty.style.display = 'block';
+                return;
+            }
+            empty.style.display = 'none';
+
+            tbody.innerHTML = rows.map(r => `
+        <tr>
+            <td>${r.id}</td>
+            <td><strong>${esc(r.first_name)} ${esc(r.last_name || '')}</strong></td>
+            <td>${esc(r.email)}</td>
+            <td>${esc(r.whatsapp)}</td>
+            <td>${esc(r.institution)}</td>
+            <td>${esc(r.participant_type)}</td>
+            <td>${esc(r.nationality)}</td>
+            <td>${esc(r.presence)}</td>
+            <td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${esc(r.sub_topic)}">${esc(r.sub_topic)}</td>
+            <td>
+                ${r.payment_proof ? `<a href="${UPLOAD_BASE + r.payment_proof}" target="_blank" class="file-link">Payment</a>` : '-'}
+                ${r.abstract_file ? ` <a href="${UPLOAD_BASE + r.abstract_file}" target="_blank" class="file-link">Abstract</a>` : ''}
+            </td>
+            <td><span class="badge badge-${r.status}">${r.status}</span></td>
+            <td style="white-space:nowrap;">${new Date(r.created_at).toLocaleDateString('id-ID')}</td>
+            <td>
+                <div class="actions">
+                    <select onchange="updateStatus(${r.id}, this.value)">
+                        <option value="pending" ${r.status === 'pending' ? 'selected' : ''}>Pending</option>
+                        <option value="approved" ${r.status === 'approved' ? 'selected' : ''}>Approved</option>
+                        <option value="rejected" ${r.status === 'rejected' ? 'selected' : ''}>Rejected</option>
+                    </select>
+                    <button class="btn btn-outline btn-sm" onclick="showDetail(${r.id})" title="View">👁</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteReg(${r.id})" title="Delete">🗑</button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+        }
+
+        async function updateStatus(id, status) {
+            await fetch(API + '?action=update-status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, status }),
+                credentials: 'include',
+            });
+            loadRegistrations();
+        }
+
+        async function deleteReg(id) {
+            if (!confirm('Delete this registration? This cannot be undone.')) return;
+            await fetch(API + '?action=delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id }),
+                credentials: 'include',
+            });
+            loadRegistrations();
+        }
+
+        function showDetail(id) {
+            const rows = document.querySelectorAll('#tbody tr');
+            // Re-fetch is more reliable
+            loadRegistrations().then(() => {
+                // find the row with matching ID and show modal  
+            });
+        }
+
+        async function exportCSV() {
+            try {
+                const res = await fetch(API + '?action=export', { credentials: 'include' });
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'bmc_registrations_' + new Date().toISOString().slice(0, 10) + '.csv';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (e) {
+                alert('Export failed. Please try again.');
+            }
+        }
+
+        // ── Detail Modal ──────────────────────────────────
+        async function showDetail(id) {
+            const res = await fetch(API + '?action=registrations&status=all&search=', { credentials: 'include' });
+            const data = await res.json();
+            const r = data.registrations.find(x => x.id == id);
+            if (!r) return;
+
+            const fields = [
+                ['Name', `${r.first_name} ${r.last_name || ''}`],
+                ['Email', r.email],
+                ['WhatsApp', r.whatsapp],
+                ['Institution', r.institution],
+                ['Participant Type', r.participant_type],
+                ['Nationality', r.nationality],
+                ['Country', r.country],
+                ['Sub-Topic', r.sub_topic],
+                ['Presence', r.presence],
+                ['Info Source', r.info_source],
+                ['Status', `<span class="badge badge-${r.status}">${r.status}</span>`],
+                ['Payment Proof', r.payment_proof ? `<a href="${UPLOAD_BASE + r.payment_proof}" target="_blank" class="file-link">Download</a>` : 'Not uploaded'],
+                ['Abstract', r.abstract_file ? `<a href="${UPLOAD_BASE + r.abstract_file}" target="_blank" class="file-link">Download</a>` : 'Not uploaded'],
+                ['Registered', new Date(r.created_at).toLocaleString('id-ID')],
+            ];
+
+            document.getElementById('modalBody').innerHTML = fields.map(([label, val]) =>
+                `<div class="field"><label>${label}</label><p>${val}</p></div>`
+            ).join('');
+
+            document.getElementById('detailModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        function esc(str) {
+            if (!str) return '';
+            const d = document.createElement('div');
+            d.textContent = str;
+            return d.innerHTML;
+        }
+
+        // ── Enter key for login ───────────────────────────
+        document.getElementById('password').addEventListener('keydown', e => {
+            if (e.key === 'Enter') doLogin();
+        });
+
+        // ── Init ──────────────────────────────────────────
+        checkAuth();
+    </script>
+</body>
+
+</html>

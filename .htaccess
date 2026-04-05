@@ -1,0 +1,31 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Route /api requests to backend/api/
+    RewriteCond %{REQUEST_URI} ^/api/(.*)$ [NC]
+    RewriteRule ^api/(.*)$ backend/api/$1 [L]
+
+    # Route /admin requests to backend/admin/
+    RewriteCond %{REQUEST_URI} ^/admin [NC]
+    RewriteCond %{REQUEST_URI} !^/admin/.*\.(js|css|png|jpg|gif|ico)$ [NC]
+    RewriteRule ^admin/?$ backend/admin/index.html [L]
+
+    # Route /uploads requests to backend/uploads/
+    RewriteCond %{REQUEST_URI} ^/uploads/ [NC]
+    RewriteRule ^uploads/(.*)$ backend/uploads/$1 [L]
+
+    # Serve built front-end from dist/
+    RewriteCond %{REQUEST_URI} !^/backend/
+    RewriteCond %{REQUEST_URI} !^/dist/
+    RewriteCond %{REQUEST_URI} !^/api/
+    RewriteCond %{REQUEST_URI} !^/admin
+    RewriteCond %{REQUEST_URI} !^/uploads/
+    RewriteRule ^(.*)$ dist/$1 [L]
+
+    # SPA Routing: if file doesn't exist in dist, serve dist/index.html
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} !^/(api|admin|uploads|backend)/ [NC]
+    RewriteRule ^ dist/index.html [L]
+</IfModule>
+
